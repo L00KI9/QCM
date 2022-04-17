@@ -8,123 +8,161 @@
     <link rel="stylesheet" href="css/QCMPage.css">
 </head>
 <body>
-  
-  <script type="text/javascript">
-    // Client ID and API key from the Developer Console
-    var CLIENT_ID = '<117561243213-bc73592vmjku010m3ttis2l8cr2sokk1.apps.googleusercontent.com>';
-    var API_KEY = '<AIzaSyAE5uPu1tHE0VMHgct8oDCBDp7iXw5S6LI>';
+  <script>
+    //client id -  54047364354-ss9854pqrupuftboear4a06s4ieie6hl.apps.googleusercontent.com
+      //client secret - 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
+      //api key - AIzaSyA1xEsOrKu2jv1uX5qyMr9RhpN-eMu6bQo
 
-    // Array of API discovery doc URLs for APIs used by the quickstart
-    var DISCOVERY_DOCS = ["https://www.googleapis.com/discovery/v1/apis/drive/v3/rest"];
 
-    // Authorization scopes required by the API; multiple scopes can be
-    // included, separated by spaces.
-    var SCOPES = 'https://www.googleapis.com/auth/drive.metadata.readonly';
 
-    var authorizeButton = document.getElementById('authorize_button');
-    var signoutButton = document.getElementById('signout_button');
+    // Enter an API key from the Google API Console:
+    //   https://console.developers.google.com/apis/credentials
+    const apiKey = ' AIzaSyA1xEsOrKu2jv1uX5qyMr9RhpN-eMu6bQo';
+    
+    // Enter the API Discovery Docs that describes the APIs you want to
+    // access. In this example, we are accessing the People API, so we load
+    // Discovery Doc found here: https://developers.google.com/people/api/rest/
+    const discoveryDocs = ["https://www.googleapis.com/discovery/v1/apis/drive/v3/rest"];
+    
+    
+    // Enter a client ID for a web application from the Google API Console:
+    //   https://console.developers.google.com/apis/credentials?project=_
+    // In your API Console project, add a JavaScript origin that corresponds
+    //   to the domain where you will be running the script.
+    const clientId = '54047364354-ss9854pqrupuftboear4a06s4ieie6hl.apps.googleusercontent.com';
 
-    /**
-     *  On load, called to load the auth2 library and API client library.
-     */
+    // Enter one or more authorization scopes. Refer to the documentation for
+    // the API or https://developers.google.com/people/v1/how-tos/authorizing
+    // for details.
+    var scopes = "https://www.googleapis.com/auth/drive \
+        https://www.googleapis.com/auth/drive.file \
+        https://www.googleapis.com/auth/drive.readonly \
+        https://www.googleapis.com/auth/drive.metadata.readonly \
+        https://www.googleapis.com/auth/drive.appdata \
+        https://www.googleapis.com/auth/drive.metadata \
+        https://www.googleapis.com/auth/drive.photos.readonly \
+        https://www.googleapis.com/auth/spreadsheets";
+        
+        /*
+        
+        */
     function handleClientLoad() {
-      gapi.load('client:auth2', initClient);
+        // Load the API client and auth2 library
+        gapi.load('client:auth2', initClient);
     }
 
-    /**
-     *  Initializes the API client library and sets up sign-in state
-     *  listeners.
-     */
+
+    const parentID = 'https://drive.google.com/drive/folders/1OH2UVhXLi9T_JAjGYUkCbbtBMM-h0htC?usp=sharing';
+
+
     function initClient() {
-      gapi.client.init({
-        apiKey: API_KEY,
-        clientId: CLIENT_ID,
-        discoveryDocs: DISCOVERY_DOCS,
-        scope: SCOPES
-      }).then(function () {
-        // Listen for sign-in state changes.
-        gapi.auth2.getAuthInstance().isSignedIn.listen(updateSigninStatus);
-
-        // Handle the initial sign-in state.
-        updateSigninStatus(gapi.auth2.getAuthInstance().isSignedIn.get());
-        authorizeButton.onclick = handleAuthClick;
-        signoutButton.onclick = handleSignoutClick;
-      }, function(error) {
-        appendPre(JSON.stringify(error, null, 2));
-      });
+        gapi.auth2.init({
+            apiKey: apiKey,
+            discoveryDocs: discoveryDocs,
+            clientId: clientId,
+            scope: scopes
+        }).then(function () {
+            gapi.auth2.getAuthInstance().signIn();
+            
+            console.log("Signed-in");
+            console.log(gapi.auth2.getAuthInstance().signIn())
+            // googleDrive()
+            // createFile()
+            // execute()
+        }, function(rejected) {
+            console.log("Rejected: ", rejected)
+        })
+            .catch((err) => {
+                console.log("Error occurred: ", err);
+            });
     }
-
-    /**
-     *  Called when the signed in status changes, to update the UI
-     *  appropriately. After a sign-in, the API is called.
-     */
-    function updateSigninStatus(isSignedIn) {
-      if (isSignedIn) {
-        authorizeButton.style.display = 'none';
-        signoutButton.style.display = 'block';
-        listFiles();
-      } else {
-        authorizeButton.style.display = 'block';
-        signoutButton.style.display = 'none';
-      }
+    
+    function execute() {
+        gapi.client.drive.files.list({
+            "corpora": "user"
+        }).then((response) => {
+            response.result.files.forEach(element => {
+                console.log("Filename: " + element.name);
+            });
+        }, (err) => {
+            console.error("Execute error", err);
+        });
     }
-
-    /**
-     *  Sign in the user upon button click.
-     */
-    function handleAuthClick(event) {
-      gapi.auth2.getAuthInstance().signIn();
+    
+    async function googleDrive() {
+        const prom1 = await new Promise((resolve, reject) => {
+            console.log("Here");
+            resolve();
+        });
+    
+        const prom2 = await new Promise((resolve, reject) => {
+            console.log("Client Loading");
+            // handleClientLoad();
+            console.log("Client Loaded");
+            resolve();
+        });
+    
+        const prom3 = await new Promise((resolve, reject) => {
+            execute();
+            resolve();
+        });
     }
+    
+        function createFile(){        
+            // var fileMetadata = {
+            // 'name' : 'CAR.gsheet',
+            // 'mimeType' : 'application/vnd.google-apps.spreadsheet',
+            // 'parents': [parentID]
+            // };
+            // gapi.client.drive.files.create({
+            // resource: fileMetadata,
+            // }).then(function(response) {
+            //     switch(response.status){
+            //         case 200:
+            //         var file = response.result;
+            //             console.log('Created File Id: ', file.id);
+            //         break;
+            //         default:
+            //             console.log('Error creating the folder, '+response);
+            //             break;
+            //             }
+            // });
 
-    /**
-     *  Sign out the user upon button click.
-     */
-    function handleSignoutClick(event) {
-      gapi.auth2.getAuthInstance().signOut();
-    }
-
-    /**
-     * Append a pre element to the body containing the given message
-     * as its text node. Used to display the results of the API call.
-     *
-     * @param {string} message Text to be placed in pre element.
-     */
-    function appendPre(message) {
-      var pre = document.getElementById('content');
-      var textContent = document.createTextNode(message + '\n');
-      pre.appendChild(textContent);
-    }
-
-    /**
-     * Print files.
-     */
-    function listFiles() {
-      gapi.client.drive.files.list({
-        'pageSize': 10,
-        'fields': "nextPageToken, files(id, name)"
-      }).then(function(response) {
-        appendPre('Files:');
-        var files = response.result.files;
-        if (files && files.length > 0) {
-          for (var i = 0; i < files.length; i++) {
-            var file = files[i];
-            appendPre(file.name + ' (' + file.id + ')');
-          }
-        } else {
-          appendPre('No files found.');
-        }
-      });
-    }
-
-  </script>
-
-  <script async defer src="https://apis.google.com/js/api.js"
+            var fileMetadata = {
+            'name': 'Invoices',
+             'mimeType': 'application/vnd.google-apps.folder'
+             };
+             drive.files.create({
+              resource: fileMetadata,
+              fields: 'id'
+            }, function (err, file) {
+              if (err) {
+                // Handle error
+                console.error(err);
+              } else {
+                console.log('Folder Id: ', file.id);
+              }
+            });
+                }//createFile
+    </script>
+ <script async defer src="https://apis.google.com/js/api.js"
     onload="this.onload=function(){};handleClientLoad()"
     onreadystatechange="if (this.readyState === 'complete') this.onload()">
-  </script>
+</script>
+  
+    
+
+ 
+
 
 
     <script type="module">
+      
+
+
+
+
+
         // Import the functions you need from the SDKs you need
         import { initializeApp } from "https://www.gstatic.com/firebasejs/9.6.5/firebase-app.js";
         import { getAuth, signInWithEmailAndPassword,onAuthStateChanged  } from "https://www.gstatic.com/firebasejs/9.6.5/firebase-auth.js";
