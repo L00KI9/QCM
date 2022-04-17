@@ -56,19 +56,19 @@
 
 
     function initClient() {
-        gapi.client.init({
+        gapi.auth2.init({
             apiKey: apiKey,
             discoveryDocs: discoveryDocs,
             clientId: clientId,
             scope: scopes
         }).then(function () {
             gapi.auth2.getAuthInstance().signIn();
-            
             console.log("Signed-in");
             console.log(gapi.auth2.getAuthInstance().signIn())
-            googleDrive()
-            createFile()
-            execute()
+            console.log(gapi.client);
+            // googleDrive()
+            // createFile()
+            // execute()
         }, function(rejected) {
             console.log("Rejected: ", rejected)
         })
