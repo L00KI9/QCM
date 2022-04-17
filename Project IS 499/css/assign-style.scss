@@ -1,0 +1,51 @@
+li:hover {
+  cursor: pointer;
+}
+select {
+  position: relative;
+  display: flex;
+  margin-left: 250px;
+  top: 100px;
+  margin-top: 25px;
+  width: 200px;
+  height: 30px;
+  border: 1px solid black;
+  border-radius: 15px;
+  text-align: center;
+}
+input {
+  position: relative;
+  display: flex;
+  margin-left: 250px;
+  top: 100px;
+  margin-top: 25px;
+  width: 200px;
+  height: 30px;
+  border: 1px solid black;
+  border-radius: 15px;
+  text-align: center;
+}
+
+button {
+  position: relative;
+  display: flex;
+  margin-left: 250px;
+  top: 100px;
+  margin-top: 25px;
+  width: 200px;
+  height: 30px;
+  border: 1px solid black;
+  border-radius: 15px;
+  text-align: center;
+  padding-top: 7.5px;
+  padding-left: 75px;
+}
+
+button:hover {
+  cursor: pointer;
+  background-color: #1874a4;
+}
+
+button:active {
+  background-color: white;
+}
