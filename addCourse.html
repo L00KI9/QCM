@@ -56,14 +56,14 @@
 
 
     function initClient() {
-        gapi.auth2.init({
+        gapi.client.init({
             apiKey: apiKey,
             clientId: clientId,
         }).then(function () {
             gapi.auth2.getAuthInstance().signIn();
             
             console.log("Signed-in");
-            console.log(gapi.auth2.signIn())
+            console.log(gapi.auth2.getAuthInstance().getid);
             // googleDrive()
             // createFile()
             // execute()
