@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quality Course Management System</title>   
+    <style>
+      body{
+        position: relative; 
+        background-image: url("images//backg.PNG");
+        background-size: cover;
+        background-repeat: no-repeat;
+        background-position: center;
+        height: 100vh;
+      } 
+      img{
+        position: absolute;
+        width: 175px;
+        height: 125px;
+        background-blend-mode: difference;
+        mix-blend-mode: multiply;
+        border-radius: 188px;
+      }
+      #name{
+        position: absolute;
+        left: 370px;
+        top: 120px;
+        font-family: Noto Sans;
+        font-style: normal;
+        font-weight: bold;
+        font-size: 36px;
+        line-height: 49px;
+        text-align: center;
+
+        color: #000000;
+        mix-blend-mode: multiply;
+      }
+      #user{
+        position: absolute;
+        width: 93px;
+        height: 88px;
+        left: 610px;
+        top: 250px;
+        border-radius: 100px;
+      }
+      
+      #userName1{
+        width: 500px;
+        height: 70px;
+        left: 325px;
+        top: 400px;
+        background: #FFFFFF;
+        border-radius: 20px;
+        position:absolute;
+        margin-top: 15px;
+        margin-bottom: 15px;
+        margin-left: 80px;
+        margin-right: 80px;
+        font-family: Tahoma;
+        font-style: normal;
+        font-size: 27px;
+        line-height: 33px;
+        text-align:center;
+        border-style: none;
+        border-color:#FFFFFF;
+      }
+
+      #password1{
+        width: 500px;
+        height: 70px;
+        left: 325px;
+        top: 500px;
+        background: #FFFFFF;
+        border-radius: 20px;
+        position:absolute;
+        margin-top: 15px;
+        margin-bottom: 15px;
+        margin-left: 80px;
+        margin-right: 80px;
+        font-family: Tahoma;
+        font-style: normal;
+        font-size: 27px;
+        line-height: 33px;
+        text-align:center;
+        border-style: none;
+        border-color:#FFFFFF;
+      }
+      
+      #login{
+        cursor: pointer ;
+        position: absolute;
+        width: 150px;
+        height: 70px;
+        left: 575px;
+        top: 620px;
+        background: linear-gradient(180deg, rgba(21, 24, 20, 0.881) 34.61%, rgba(221, 221, 222, 0.8118) 88.32%);
+        mix-blend-mode: darken;
+        border-radius: 20px;
+        font-size: 30px; 
+        color: white;
+        
+      }
+      #login input{
+        margin-bottom :10px;
+        margin-top:10px;
+        margin-left: 20px;
+        margin-right: 20px;
+        font-family: Tahoma;
+        font-style: normal;
+        font-weight: bold;
+        font-size: 30px;
+        line-height: 36px;
+        text-align: center;
+        background-color: transparent;
+        color: #FFFFFF;
+      }
+      #useri{
+        position: absolute;
+        top: 429px;
+        height: 50px;
+        width: 50px;
+        left: 850px;
+        
+      }
+      #pass{
+        position: absolute;
+        top: 530px;
+        height: 45px;
+        width: 35px;
+        left: 860px;
+      }
+
+    </style>
+</head>
+<body> 
+  
+  <img src="images/KSU_logo.png" alt="image not found">
+  <p id="name"> Quality Course Management System </p>
+  <img id ="user" src="images/blackicon.png" alt="image not found">
+  <form>
+    <label id="userName">
+      <input id="userName1" type="text" placeholder="Username" >
+    </label>
+    <label id="password">
+      <input id="password1" type="password" placeholder="Password">
+    </label>
+
+    <input id="login" type="button" value=" Login" >
+
+    <img src="images/user.png" alt="image not found" id="useri">
+    <img src="images/pass.png" alt="image not found" id="pass">
+  </form>
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/9.6.5/firebase-app.js";
+    import { getFirestore } from "https://www.gstatic.com/firebasejs/9.6.5/firebase-firestore.js"
+    import { collection, addDoc } from "https://www.gstatic.com/firebasejs/9.6.5/firebase-firestore.js";
+    import { getAuth, signInWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/9.6.5/firebase-auth.js";
+    import { getDatabase, ref, set, child, update, remove} from "https://www.gstatic.com/firebasejs/9.6.5/firebase-database.js";
+    
+    const firebaseConfig = {
+      apiKey: "AIzaSyAE5uPu1tHE0VMHgct8oDCBDp7iXw5S6LI",
+      authDomain: "qcm1-d91e2.firebaseapp.com",
+      databaseURL: "https://qcm1-d91e2-default-rtdb.euccrope-west1.firebasedatabase.app",
+      projectId: "qcm1-d91e2",
+      storageBucket: "qcm1-d91e2.appspot.com",
+      messagingSenderId: "117561243213",
+      appId: "1:117561243213:web:99dc9c3a2e1ebef8074e04",
+      measurementId: "G-9Q079N05RZ"
+    };    
+    const app = initializeApp(firebaseConfig);
+    console.log(app);
+
+    document.getElementById("login").onclick = function(){
+               var email =  document.getElementById("userName1").value;
+               var password =  document.getElementById("password1").value;
+               //alert( email  +   password);
+              const auth = getAuth();
+              signInWithEmailAndPassword(auth, email, password)
+                .then((userCredential) => {
+                  // Signed in
+
+                  const user = userCredential.user;
+                  alert("user signed in"+ user.uid);
+                  console.log("sign in")
+                  // ...
+                })
+                .catch((error) => {
+                  const errorCode = error.code;
+                  const errorMessage = error.message;
+                  alert(errorMessage);
+                });
+}
+  </script>   
+</body>
+</html>
