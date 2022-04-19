@@ -1,312 +1,164 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
-    <meta charset="UTF-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>add course</title>
-    <link rel="stylesheet" href="css/QCMPage.css">
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>add course</title>
+  <link rel="stylesheet" href="css/QCMPage.css">
 </head>
+
 <body>
-  <script>
-    //client id -  54047364354-ss9854pqrupuftboear4a06s4ieie6hl.apps.googleusercontent.com
-      //client secret - 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
-      //api key - AIzaSyA1xEsOrKu2jv1uX5qyMr9RhpN-eMu6bQo
 
+  <script type="module">
+    // Import the functions you need from the SDKs you need
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/9.6.5/firebase-app.js";
+    import { getAuth, signInWithEmailAndPassword, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/9.6.5/firebase-auth.js";
+    import { getDatabase, ref, set, get, onValue, child, remove } from "https://www.gstatic.com/firebasejs/9.6.5/firebase-database.js"
+    import { collection, addDoc } from "https://www.gstatic.com/firebasejs/9.6.5/firebase-firestore.js";
+    // TODO: Add SDKs for Firebase products that you want to use
+    // https://firebase.google.com/docs/web/setup#available-libraries
 
+    // Your web app's Firebase configuration
+    // For Firebase JS SDK v7.20.0 and later, measurementId is optional
+    const firebaseConfig = {
+      apiKey: "AIzaSyAE5uPu1tHE0VMHgct8oDCBDp7iXw5S6LI",
+      authDomain: "qcm1-d91e2.firebaseapp.com",
+      databaseURL: "https://qcm1-d91e2-default-rtdb.europe-west1.firebasedatabase.app",
+      projectId: "qcm1-d91e2",
+      storageBucket: "qcm1-d91e2.appspot.com",
+      messagingSenderId: "117561243213",
+      appId: "1:117561243213:web:99dc9c3a2e1ebef8074e04",
+      measurementId: "G-9Q079N05RZ"
+    };
 
-    // Enter an API key from the Google API Console:
-    //   https://console.developers.google.com/apis/credentials
-    const apiKey = ' AIzaSyA1xEsOrKu2jv1uX5qyMr9RhpN-eMu6bQo';
-    
-    // Enter the API Discovery Docs that describes the APIs you want to
-    // access. In this example, we are accessing the People API, so we load
-    // Discovery Doc found here: https://developers.google.com/people/api/rest/
-    const discoveryDocs = ["https://www.googleapis.com/discovery/v1/apis/drive/v3/rest"];
-    
-    
-    // Enter a client ID for a web application from the Google API Console:
-    //   https://console.developers.google.com/apis/credentials?project=_
-    // In your API Console project, add a JavaScript origin that corresponds
-    //   to the domain where you will be running the script.
-    const clientId = '54047364354-ss9854pqrupuftboear4a06s4ieie6hl.apps.googleusercontent.com';
+    // Initialize Firebase
+    const app = initializeApp(firebaseConfig);
 
-    // Enter one or more authorization scopes. Refer to the documentation for
-    // the API or https://developers.google.com/people/v1/how-tos/authorizing
-    // for details.
-    var scopes = "https://www.googleapis.com/auth/drive \
-        https://www.googleapis.com/auth/drive.file \
-        https://www.googleapis.com/auth/drive.readonly \
-        https://www.googleapis.com/auth/drive.metadata.readonly \
-        https://www.googleapis.com/auth/drive.appdata \
-        https://www.googleapis.com/auth/drive.metadata \
-        https://www.googleapis.com/auth/drive.photos.readonly \
-        https://www.googleapis.com/auth/spreadsheets";
-        
-        /*
-        
-        */
-    function handleClientLoad() {
-        // Load the API client and auth2 library
-        gapi.load('client:auth2', initClient);
-    }
+    const database = getDatabase(app);
+    const db = getDatabase();
+    const dbRef = ref(db);
 
-
-    const parentID = 'https://drive.google.com/drive/folders/1OH2UVhXLi9T_JAjGYUkCbbtBMM-h0htC?usp=sharing';
-
-
-    function initClient() {
-        gapi.auth2.init({
-            apiKey: apiKey,
-            discoveryDocs: discoveryDocs,
-            clientId: clientId,
-            scope: scopes
-        }).then(function () {
-            gapi.auth2.getAuthInstance().signIn();
-            console.log("Signed-in");
-            console.log(gapi.auth2.getAuthInstance().signIn())
-            console.log(gapi.client);
-            // googleDrive()
-            // createFile()
-            // execute()
-        }, function(rejected) {
-            console.log("Rejected: ", rejected)
-        })
-            .catch((err) => {
-                console.log("Error occurred: ", err);
-            });
-    }
-    
-    function execute() {
-        gapi.client.drive.files.list({
-            "corpora": "user"
-        }).then((response) => {
-            response.result.files.forEach(element => {
-                console.log("Filename: " + element.name);
-            });
-        }, (err) => {
-            console.error("Execute error", err);
+    const auth = getAuth();
+    onAuthStateChanged(auth, (user) => {
+      if (user != null) {
+        get(child(dbRef, 'qcm/')).then((snapshot) => {
+          if (snapshot.exists()) {
+            var data = snapshot.val();
+            for (let i in data) {
+              if (data[i].email == user.email)
+                document.getElementById("welcome_user").innerHTML = " Welcome " + data[i].username;
+            }
+          }
+          else {
+            alert('user not found')
+          }
+        }).catch((error) => {
+          alert(error)
         });
-    }
-    
-    async function googleDrive() {
-        const prom1 = await new Promise((resolve, reject) => {
-            console.log("Here");
-            resolve();
-        });
-    
-        const prom2 = await new Promise((resolve, reject) => {
-            console.log("Client Loading");
-            // handleClientLoad();
-            console.log("Client Loaded");
-            resolve();
-        });
-    
-        const prom3 = await new Promise((resolve, reject) => {
-            execute();
-            resolve();
-        });
-    }
-    
-        function createFile(){        
-            // var fileMetadata = {
-            // 'name' : 'CAR.gsheet',
-            // 'mimeType' : 'application/vnd.google-apps.spreadsheet',
-            // 'parents': [parentID]
-            // };
-            // gapi.client.drive.files.create({
-            // resource: fileMetadata,
-            // }).then(function(response) {
-            //     switch(response.status){
-            //         case 200:
-            //         var file = response.result;
-            //             console.log('Created File Id: ', file.id);
-            //         break;
-            //         default:
-            //             console.log('Error creating the folder, '+response);
-            //             break;
-            //             }
-            // });
-
-            var fileMetadata = {
-            'name': 'Invoices',
-             'mimeType': 'application/vnd.google-apps.folder'
-             };
-             drive.files.create({
-              resource: fileMetadata,
-              fields: 'id'
-            }, function (err, file) {
-              if (err) {
-                // Handle error
-                console.error(err);
-              } else {
-                console.log('Folder Id: ', file.id);
-              }
-            });
-                }//createFile
-    </script>
- <script async defer src="https://apis.google.com/js/api.js"
-    onload="this.onload=function(){};handleClientLoad()"
-    onreadystatechange="if (this.readyState === 'complete') this.onload()">
-</script>
-  
-    
-
- 
-
-
-
-    <script type="module">
-      
-
-
-
-
-
-        // Import the functions you need from the SDKs you need
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/9.6.5/firebase-app.js";
-        import { getAuth, signInWithEmailAndPassword,onAuthStateChanged  } from "https://www.gstatic.com/firebasejs/9.6.5/firebase-auth.js";
-        import {  getDatabase,ref,set,get,onValue,child,remove } from "https://www.gstatic.com/firebasejs/9.6.5/firebase-database.js"
-        import { collection, addDoc } from "https://www.gstatic.com/firebasejs/9.6.5/firebase-firestore.js";
-        // TODO: Add SDKs for Firebase products that you want to use
-        // https://firebase.google.com/docs/web/setup#available-libraries
-      
-        // Your web app's Firebase configuration
-        // For Firebase JS SDK v7.20.0 and later, measurementId is optional
-        const firebaseConfig = {
-          apiKey: "AIzaSyAE5uPu1tHE0VMHgct8oDCBDp7iXw5S6LI",
-          authDomain: "qcm1-d91e2.firebaseapp.com",
-          databaseURL: "https://qcm1-d91e2-default-rtdb.europe-west1.firebasedatabase.app",
-          projectId: "qcm1-d91e2",
-          storageBucket: "qcm1-d91e2.appspot.com",
-          messagingSenderId: "117561243213",
-          appId: "1:117561243213:web:99dc9c3a2e1ebef8074e04",
-          measurementId: "G-9Q079N05RZ"
-        };
-      
-        // Initialize Firebase
-        const app = initializeApp(firebaseConfig);
-        
-        const database = getDatabase(app);
-        const db = getDatabase();
-        const dbRef = ref(db);
-        
-        const auth = getAuth();
-onAuthStateChanged(auth, (user) => {
-  if (user !=null) {
-    get(child(dbRef,'qcm/')).then((snapshot) => {
-    if(snapshot.exists()){
-       var data = snapshot.val();
-       for(let i in data){  
-           if(data[i].email == user.email)
-           document.getElementById("welcome_user").innerHTML =" Welcome " + data[i].username;
-       }
-    }
-     else{
-        alert('user not found')
-    }    
-    }).catch((error)=>{
-        alert(error)
-    });  
-    //--------------------------------------------------------------
+        //--------------------------------------------------------------
 
         get(child(dbRef, `coordinator/`)).then((snapshot) => {
-if (snapshot.exists()) {
+          if (snapshot.exists()) {
 
-var data = snapshot.val();
-for(let i in data){
-var cEmailO = document.createElement('option');
-cEmailO.innerHTML = data[i].email;
-document.getElementById('cEmailT').appendChild(cEmailO);
+            var data = snapshot.val();
+            for (let i in data) {
+              var cEmailO = document.createElement('option');
+              cEmailO.innerHTML = data[i].email;
+              document.getElementById('cEmailT').appendChild(cEmailO);
 
-}
-}   }).catch((error) => {
-console.error(error);
-});
-        document.getElementById("save").onclick = function(){
-        if(document.getElementById('cEmailT').value == '---'){
-         alert('Please select coordinator Email');}
-         else{
-          var code = document.getElementById('codeT').value; 
-         set(ref(database, "Course/" + code ), {
-           
-        CourseName: document.getElementById('NameT').value,
-        CreditHours: document.getElementById('HoursT').value,
-        coordinatorEmail: document.getElementById('cEmailT').value
-        
-         }).then(()=>{
-           if(document.getElementById("clos").value == 1)
-          set(ref(database, "Course/" + code +"/"+ "CLOs/"), {
-            clo1: document.getElementById("sid1").value,
-          })
-          if(document.getElementById("clos").value == 2)
-          set(ref(database, "Course/" + code +"/"+ "CLOs/"), {
-            clo1: document.getElementById("sid1").value,
-            clo2: document.getElementById("sid2").value,
-          })
-          if(document.getElementById("clos").value == 3)
-          set(ref(database, "Course/" + code +"/"+ "CLOs/"), {
-            clo1: document.getElementById("sid1").value,
-            clo2: document.getElementById("sid2").value,
-            clo3: document.getElementById("sid3").value,
-          })
-          if(document.getElementById("clos").value == 4)
-          set(ref(database, "Course/" + code + "/"+"CLOs/"), {
-            clo1: document.getElementById("sid1").value,
-            clo2: document.getElementById("sid2").value,
-            clo3: document.getElementById("sid3").value,
-            clo4: document.getElementById("sid4").value,
-          })
-          if(document.getElementById("clos").value == 5)
-          set(ref(database, "Course/" + code + "/"+"CLOs/"), {
-            clo1: document.getElementById("sid1").value,
-            clo2: document.getElementById("sid2").value,
-            clo3: document.getElementById("sid3").value,
-            clo4: document.getElementById("sid4").value,
-            clo5: document.getElementById("sid5").value,
-          })
-          if(document.getElementById("clos").value == 6)
-          set(ref(database, "Course/" + code + "/"+"CLOs/"), {
-            clo1: document.getElementById("sid1").value,
-            clo2: document.getElementById("sid2").value,
-            clo3: document.getElementById("sid3").value,
-            clo4: document.getElementById("sid4").value,
-            clo5: document.getElementById("sid5").value,
-            clo6: document.getElementById("sid6").value,
-          })
-         }).catch((error)=>{
-           alert(errorMessage);
-         });
-     
-        }}
-        document.getElementById("Delete").onclick = function(){
-          var code = document.getElementById('codeT').value; 
-          remove(ref(database, "Course/"+code))
-                .then(()=>{
-                 alert('course deleted');
-                    }).catch((error) => {
-                    alert("problem");
-                    });
+            }
+          }
+        }).catch((error) => {
+          console.error(error);
+        });
+        document.getElementById("save").onclick = function () {
+          if (document.getElementById('cEmailT').value == '---') {
+            alert('Please select coordinator Email');
+          }
+          else {
+            var code = document.getElementById('codeT').value;
+            set(ref(database, "Course/" + code), {
+
+              CourseName: document.getElementById('NameT').value,
+              CreditHours: document.getElementById('HoursT').value,
+              coordinatorEmail: document.getElementById('cEmailT').value
+
+            }).then(() => {
+              if (document.getElementById("clos").value == 1)
+                set(ref(database, "Course/" + code + "/" + "CLOs/"), {
+                  clo1: document.getElementById("sid1").value,
+                })
+              if (document.getElementById("clos").value == 2)
+                set(ref(database, "Course/" + code + "/" + "CLOs/"), {
+                  clo1: document.getElementById("sid1").value,
+                  clo2: document.getElementById("sid2").value,
+                })
+              if (document.getElementById("clos").value == 3)
+                set(ref(database, "Course/" + code + "/" + "CLOs/"), {
+                  clo1: document.getElementById("sid1").value,
+                  clo2: document.getElementById("sid2").value,
+                  clo3: document.getElementById("sid3").value,
+                })
+              if (document.getElementById("clos").value == 4)
+                set(ref(database, "Course/" + code + "/" + "CLOs/"), {
+                  clo1: document.getElementById("sid1").value,
+                  clo2: document.getElementById("sid2").value,
+                  clo3: document.getElementById("sid3").value,
+                  clo4: document.getElementById("sid4").value,
+                })
+              if (document.getElementById("clos").value == 5)
+                set(ref(database, "Course/" + code + "/" + "CLOs/"), {
+                  clo1: document.getElementById("sid1").value,
+                  clo2: document.getElementById("sid2").value,
+                  clo3: document.getElementById("sid3").value,
+                  clo4: document.getElementById("sid4").value,
+                  clo5: document.getElementById("sid5").value,
+                })
+              if (document.getElementById("clos").value == 6)
+                set(ref(database, "Course/" + code + "/" + "CLOs/"), {
+                  clo1: document.getElementById("sid1").value,
+                  clo2: document.getElementById("sid2").value,
+                  clo3: document.getElementById("sid3").value,
+                  clo4: document.getElementById("sid4").value,
+                  clo5: document.getElementById("sid5").value,
+                  clo6: document.getElementById("sid6").value,
+                })
+            }).catch((error) => {
+              alert(errorMessage);
+            });
+
+          }
         }
-        document.getElementById("clos").onchange = function(){
+        document.getElementById("Delete").onclick = function () {
+          var code = document.getElementById('codeT').value;
+          remove(ref(database, "Course/" + code))
+            .then(() => {
+              alert('course deleted');
+            }).catch((error) => {
+              alert("problem");
+            });
+        }
+        document.getElementById("clos").onchange = function () {
           console.log(document.getElementById("clos").value)
           var child = document.getElementById("select-container").lastElementChild;
-          while(child){
+          while (child) {
             document.getElementById("select-container").removeChild(child);
             child = document.getElementById("select-container").lastElementChild;
           }
-          for(var i = 1; i <= document.getElementById("clos").value; i++){
+          for (var i = 1; i <= document.getElementById("clos").value; i++) {
             var select = document.createElement("select");
             var label = document.createElement("label");
-            select.setAttribute("id","sid" + i);
-            select.setAttribute("class","scl")
+            select.setAttribute("id", "sid" + i);
+            select.setAttribute("class", "scl")
             label.setAttribute("id", "s2");
             label.innerHTML = "CLO " + i;
             label.for = "sid" + i;
             //  document.getElementById("container").insertBefore(select,document.getElementById("save"));
             //  document.getElementById("container").insertBefore(label,document.getElementById("save"));
-             document.getElementById("select-container").appendChild(select);
-             document.getElementById("select-container").appendChild(label);
+            document.getElementById("select-container").appendChild(select);
+            document.getElementById("select-container").appendChild(label);
             var option1 = document.createElement("option");
             option1.innerHTML = 1;
             select.appendChild(option1);
@@ -327,77 +179,82 @@ console.error(error);
             select.appendChild(option6);
           }
         };
-        document.getElementById("logout").onclick = function(){
-  
-  signOut(auth).then(() => {
-    // Sign-out successful.
-  }).catch((error) => {
-    // An error happened.
-  });
-}
+        document.getElementById("logout").onclick = function () {
+
+          signOut(auth).then(() => {
+            // Sign-out successful.
+          }).catch((error) => {
+            // An error happened.
+          });
+        }
       } else {
-    // User is signed out
-    // ...
-  }
-});
-
-</script>
+        // User is signed out
+        // ...
+      }
+    });
 
 
-      <div id="top">
-        
-        <a href="QCMHomePage.html"><img src="images/KSU_logo.png" alt="KSU_logo" id="ksu_logo" class="ksu_logo"></a>
-        
-        <h3 id="welcome_user">Welcome </h3>
-        <a href="SignIn.html" id="logout">Logout</a><p id="bet">|</p>
-        <img src="images/blackicon.png" alt="" id="logout_img">
-      </div>
-      
-      <div class="container" id="container"> 
-        
-        <ul>
-  
-       <li> <h2 id="option">option</h2></li>
-  
-       <li> <a href="QCMHomePage.html" id="home">Home</a></li>
-       <li><a href="addContent.html"id="course">Add Course</a></li>
-       <li> <a href="#"id="report">View Report</a></li>
-       <li><a href="#"id="message">Message</a></li>
-       
-      </ul>
-      <label id="line">|</label>
-      <input type="text" id="codeT" >
-      <label for="codeT" id="code">Course Code</label>
+  </script>
 
-      <input type="text" id="NameT" >
-     <label for="NameT" id="Name">Course Name</label>
 
-      <input type="text" id="HoursT" >
-      <label for="HoursT" id="Hours">Credit Hours</label>
+  <div id="top">
 
-      <select id="cEmailT">
-        <option>---</option>
-      </select>
-      <label for="cEmailT" id="cEmail">Coordinator Email</label>
-      <select id="clos">
-        <option>---</option>
-        <option>1</option>
-        <option>2</option>
-        <option>3</option>
-        <option>4</option>
-        <option>5</option>
-        <option>6</option>
-      </select>
-      <label for="clos" id="l_clos">
-        Number of CLOs
-      </label>
-      <div class="select-container" id="select-container"></div>
-      <button type="button" id="save" >ADD</button> 
-      <button type="button" id="Delete" >Delete</button> 
-   
- 
-      </div>
-     
+    <a href="QCMHomePage.html"><img src="images/KSU_logo.png" alt="KSU_logo" id="ksu_logo" class="ksu_logo"></a>
+
+    <h3 id="welcome_user">Welcome </h3>
+    <a href="SignIn.html" id="logout">Logout</a>
+    <p id="bet">|</p>
+    <img src="images/blackicon.png" alt="" id="logout_img">
+  </div>
+
+  <div class="container" id="container">
+
+    <ul>
+
+      <li>
+        <h2 id="option">option</h2>
+      </li>
+
+      <li> <a href="QCMHomePage.html" id="home">Home</a></li>
+      <li><a href="addContent.html" id="course">Add Course</a></li>
+      <li> <a href="#" id="report">View Report</a></li>
+      <li><a href="#" id="message">Message</a></li>
+
+    </ul>
+    <label id="line">|</label>
+    <input type="text" id="codeT">
+    <label for="codeT" id="code">Course Code</label>
+
+    <input type="text" id="NameT">
+    <label for="NameT" id="Name">Course Name</label>
+
+    <input type="text" id="HoursT">
+    <label for="HoursT" id="Hours">Credit Hours</label>
+
+    <select id="cEmailT">
+      <option>---</option>
+    </select>
+    <label for="cEmailT" id="cEmail">Coordinator Email</label>
+    <select id="clos">
+      <option>---</option>
+      <option>1</option>
+      <option>2</option>
+      <option>3</option>
+      <option>4</option>
+      <option>5</option>
+      <option>6</option>
+    </select>
+    <label for="clos" id="l_clos">
+      Number of CLOs
+    </label>
+    <div class="select-container" id="select-container"></div>
+    <button type="button" id="save">ADD</button>
+    <button type="button" id="Delete">Delete</button>
+
+
+  </div>
+
 
 </body>
+
 </html>
